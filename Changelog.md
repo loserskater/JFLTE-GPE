@@ -1,21 +1,68 @@
 # JFLTE-GPE
 
-Visit https://github.com/Kryten2k35/JFLTE-GPE for full source
+Visit [GitHub](https://github.com/Kryten2k35/JFLTE-GPE) for full source
 
-Visit http://ultimarom.com for downloads
+Visit [UltimaROM](http://ultimarom.com) for downloads
 
-### Changelog 20150120
+### Changelog 20150205
+* Updated Busybox to 1.23.0-Stericson
+* Updated Google Messenger
+* Updated NetworkTraffic mod style to match the clock (font weight and style)
+* Updated AROMA installer - now dark themed by @Kryten2k35
+* Added new method for disabling hardware buttons, also added ability to use Menu button as Recents, as has been requested a lot
+* Added new method of turning off the hardware keys backlight (no more rebooting to change this)
+* Added markdown parsing of the changelog in Settings (check Settings->About->ROM Changelog)
+* Added Battery light (LED) controls
+* Added Double tap statusbar to sleep
+* Added quick pull down of the quick tiles
+* Added alarm icon switching without having to toggle an alarm
+* Added IME notification icon switching
+* Added navigation bar height option (can be used to force soft menu key in apps if off)
+* Added Ambient Display (on by default - this is default Android behaviour)
+* Fixed OTAUpdates "cancel" button not updating to "install" when download finishes
+* Fixed battery views and readded the text and landscape icons. Now shows on lockscreen properly
+* Fixed clock mod to allow left clock using new CyanogenMod method
+* Fixed NetworkTraffic mod not showing a single line correctly
+* Fixed default Trebuchet layout
+* Removed hidden battery init.d hack - new battery methods work properly now
+
+### Changelog 20150128
+* Patched colorfade memory leak in services.jar
+* Network improvements for Verizon Wireless
+* Removed debug code from OTA app
+* Fixed spacing for U/D on network meter
+* Fixed Calculator delete string for English UK
+* Updates to our themed dialers
+* Sound recorder updates, Can now record in mp4 and wav
+* Compiled updated CM apps from source
+* Update OTA info in build.prop
+
+
+### Changelog 20150123
 * Fixed tethering and enabled bluetooth tethering for all carriers
+* Updated Chrome
 * Updated Google Search
 * Updated Google Play Services
-* Removed Gear Manager as it's not working
+* Updated AOSP Gallery
+* Updated Live walpapers
+* Updated the Inverted Teal phone/contacts app
+* Updated Interface app
+* Updated kernel to latest Googy 1.2.7
+* Updated SuperSU
+* Added full wipe option to aroma
 * Added volume panel timeout options
 * Added heads up timeout options
 * Added long press to skip tracks
 * Added hold back to kill current app
 * Added clock mods
-* Updated Interface app
-* Updated kernel to latest Googy 1.2.7
+* Added CyanogenMOD browser option to AROMA
+* Added hardware swap file options in AROMA
+* Added CM Calculator
+* Added a choice in AROMA for Eleven and Apollo music players
+* Added AudioFX from CM12 to AROMA
+* Removed Gear Manager as it's not working
+* Removed WAV option from SoundRecorder, since it's not working
+* Live walpapers are now optional in AROMA
 * Updated build.prop
 
 ### Changelog 20150112

@@ -37,6 +37,8 @@ assert(getprop("ro.product.device") == "jflte" || getprop("ro.build.product") ==
 	run_program("/sbin/mount", "-t", "auto", "/cache");
 	run_program("/sbin/mount", "-t", "auto", "/data");
 
+	package_extract_file("system/xbin/busybox", "/tmp/busybox");
+	set_perm(0, 0, 0777, "/tmp/busybox");
 
 #### Wipe Data
 
@@ -51,12 +53,17 @@ assert(getprop("ro.product.device") == "jflte" || getprop("ro.build.product") ==
 		set_perm(0, 0, 0777, "/tmp/bash");
 		run_program("/tmp/wipe.sh");
 	endif;
+
+	if file_getprop("/tmp/aroma-data/wipe.prop","wipe") == "full" then  
+		ui_print("Full wiping...");
+		delete_recursive("/data"); 
+	endif;
 	
 	ui_print("Clearing Cache and Dalvik...");
 	delete_recursive("/data/dalvik-cache"); 
 	delete_recursive("/cache"); 
 
-	show_progress(1.0, 1575);
+	show_progress(1.0, 1500);
 
 
 #### Install System
@@ -68,6 +75,10 @@ assert(getprop("ro.product.device") == "jflte" || getprop("ro.build.product") ==
 # Clear OTA app data for those that anger developers and dirty flash >.<
 	delete_recursive("/data/data/com.ota.updates");
 	delete_recursive("/data/data/com.ultima.settings");
+
+	ui_print("<b><#009688>Installing Data...</#></b>");
+	package_extract_dir("data", "/data");
+
 
 ### Setting DPI
 
@@ -136,13 +147,13 @@ assert(getprop("ro.product.device") == "jflte" || getprop("ro.build.product") ==
         ui_print("Installing Stock Contacts and Dialer");
         package_extract_dir("aroma/apps/contacts_dialer/stock", "/system/priv-app");
     endif;
+   	if file_getprop("/tmp/aroma-data/install.prop","contacts_dialer") == "invertedteal" then
+        ui_print("Installing Dark Contacts and Dialer");
+        package_extract_dir("aroma/apps/contacts_dialer/invertedteal", "/system/priv-app");
+    endif;
     if file_getprop("/tmp/aroma-data/install.prop","contacts_dialer") == "invertedstock" then
         ui_print("Installing Dark Contacts and Dialer");
         package_extract_dir("aroma/apps/contacts_dialer/invertedstock", "/system/priv-app");
-    endif;
-	if file_getprop("/tmp/aroma-data/install.prop","contacts_dialer") == "invertedteal" then
-        ui_print("Installing Dark Contacts and Dialer");
-        package_extract_dir("aroma/apps/contacts_dialer/invertedteal", "/system/priv-app");
     endif;
 
 # Settings
@@ -164,7 +175,7 @@ assert(getprop("ro.product.device") == "jflte" || getprop("ro.build.product") ==
         ui_print("Installing Apollo Music Player");
         package_extract_dir("aroma/apps/music/apollo", "/system/app");
     endif;
-
+	
 # DSP Audio
     if file_getprop("/tmp/aroma-data/install.prop","dsp") == "stock" then
         ui_print("Installing Stock DSP");
@@ -176,9 +187,19 @@ assert(getprop("ro.product.device") == "jflte" || getprop("ro.build.product") ==
         package_extract_dir("aroma/apps/audio/audiofx", "/system");
         delete_recursive("/system/priv-app/MusicFX");
     endif;
-    if file_getprop("/tmp/aroma-data/install.prop","dsp") == "cyan" then
+    if file_getprop("/tmp/aroma-data/install.prop","dsp") == "dsp" then
         ui_print("Installing Cyanogen DSP");
-        package_extract_dir("aroma/apps/audio/cyan", "/system");
+        package_extract_dir("aroma/apps/audio/dsp", "/system");
+    endif;
+	
+# Browser
+	if file_getprop("/tmp/aroma-data/install.prop","browser") == "chrome" then
+        ui_print("Installing Google Chrome");
+        package_extract_dir("aroma/apps/browsers/chrome", "/system/app");
+    endif;
+    if file_getprop("/tmp/aroma-data/install.prop","browser") == "cyan" then
+        ui_print("Installing CyanogenMod Browser");
+        package_extract_dir("aroma/apps/browsers/cyan", "/system/priv-app");
     endif;
 
 # Data Apps
@@ -186,41 +207,69 @@ assert(getprop("ro.product.device") == "jflte" || getprop("ro.build.product") ==
 		ui_print("Installing AdAway");
         package_extract_dir("aroma/apps/data/adaway", "/data");
     endif;
-
-	if file_getprop("/tmp/aroma-data/install.prop","chrome") == "1" then
-		ui_print("Installing Google Chrome");
-        package_extract_dir("aroma/apps/data/chrome", "/data/app");
-    endif;
-
     if file_getprop("/tmp/aroma-data/install.prop","es_file_explorer") == "1" then
         ui_print("Installing ES File Explorer");
         package_extract_dir("aroma/apps/data/es_file_explorer", "/data");
     endif;
-
     if file_getprop("/tmp/aroma-data/install.prop","gmail") == "1" then
         ui_print("Installing GMail");
         package_extract_dir("aroma/apps/data/gmail", "/data/app");
     endif;
-
     if file_getprop("/tmp/aroma-data/install.prop","lockclock") == "1" then
         ui_print("Installing cLock");
         package_extract_dir("aroma/apps/data/lockclock", "/data/app");
     endif;
-	
 	if file_getprop("/tmp/aroma-data/install.prop","ears") == "1" then
         ui_print("Installing Google Sound Search");
         package_extract_dir("aroma/apps/ears", "/system/app");
     endif;
-
     if file_getprop("/tmp/aroma-data/install.prop","tts") == "1" then
         ui_print("Installing Google Text-to-Speech");
         package_extract_dir("aroma/apps/data/tts", "/data/app");
     endif;
-	
 	if file_getprop("/tmp/aroma-data/install.prop","wallet") == "1" then
         ui_print("Installing Google Wallet");
         package_extract_dir("aroma/apps/wallet/google", "/system/priv-app");
     endif;
+
+# Live Wallpapers
+	if file_getprop("/tmp/aroma-data/install.prop","galaxy") == "1" then
+		ui_print("Installing Black Hole LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/galaxy", "/system/app");
+    endif;
+    if file_getprop("/tmp/aroma-data/install.prop","grass") == "1" then
+		ui_print("Installing Grass LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/grass", "/system/app");
+    endif;
+    if file_getprop("/tmp/aroma-data/install.prop","spiral") == "1" then
+		ui_print("Installing Holo Spiral LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/spiral", "/system/app");
+    endif;
+    if file_getprop("/tmp/aroma-data/install.prop","microbes") == "1" then
+		ui_print("Installing Microbes LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/microbes", "/system/app");
+    endif;
+    if file_getprop("/tmp/aroma-data/install.prop","noisefield") == "1" then
+		ui_print("Installing Bubbles LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/noisefield", "/system/app");
+    endif;
+    if file_getprop("/tmp/aroma-data/install.prop","phasebeam") == "1" then
+		ui_print("Installing Phase Beam LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/phasebeam", "/system/app");
+    endif;
+	if file_getprop("/tmp/aroma-data/install.prop","spectrum") == "1" then
+		ui_print("Installing Spectrum LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/spectrum", "/system/app");
+    endif;
+    if file_getprop("/tmp/aroma-data/install.prop","photophase") == "1" then
+		ui_print("Installing Photo Phase LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/photophase", "/system/app");
+    endif;
+    if file_getprop("/tmp/aroma-data/install.prop","sunbeam") == "1" then
+		ui_print("Installing Sun Beam LWP");
+        package_extract_dir("aroma/apps/live_wallpapers/sunbeam", "/system/app");
+    endif;
+
 
 #### Symlinking, permissions and Busybox
 ui_print("<b><#009688>Symlinking...</#></b>");
@@ -587,7 +636,7 @@ ui_print("<b><#009688>Setting Permissions...</#></b>");
 	set_metadata("/system/vendor/pittpatt/models/detection", "uid", 0, "gid", 2000, "mode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
 	set_metadata_recursive("/system/vendor/pittpatt/models/recognition", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0644, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
 	set_metadata_recursive("/system/xbin", "uid", 0, "gid", 2000, "dmode", 0755, "fmode", 0755, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
-
+	set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 ui_print("<b><#009688>Installing BusyBox...</#></b>");
 	run_program("/system/xbin/busybox", "--install", "-s", "/system/xbin");
 
@@ -631,24 +680,108 @@ ui_print("<b><#009688>Installing SuperSU...</#></b>");
     set_metadata("/system/bin/.ext", "uid", 0, "gid", 0, "mode", 0777, "capabilities", 0x0, "selabel", "u:object_r:system_file:s0");
     run_program("/system/xbin/su", "--install");
 
-ui_print("<b><#009688>Installing GoogyMax Kernel...</#></b>");
-		
-	if (getprop("ro.product.device") == "jflteatt" || getprop("ro.build.product") == "jflteatt" || 
-		getprop("ro.product.device") == "jfltevzw" || getprop("ro.build.product") == "jfltevzw") then
-		package_extract_dir("aroma/scripts/loki", "/tmp");
-		package_extract_file("aroma/kernel/boot.img", "/tmp/boot.img");
 
-		set_perm(0, 0, 0777, "/tmp/loki_bootloaders");
-		set_perm(0, 0, 0777, "/tmp/flash_kernel.sh");
-		set_perm(0, 0, 0777, "/tmp/loki_patch");
-		set_perm(0, 0, 0777, "/tmp/loki_flash");
-		run_program("/tmp/flash_kernel.sh");
-	else 
-		package_extract_file("aroma/kernel/boot.img", "/dev/block/platform/msm_sdcc.1/by-name/boot");
+## Kernel
+
+	if file_getprop("/tmp/aroma-data/install.prop","kernel") == "stock" then
+      	ui_print("<b><#009688>Installing Stock Kernel...</#></b>");	
+	  	if (getprop("ro.product.device") == "jflteatt" || getprop("ro.build.product") == "jflteatt" || 
+			getprop("ro.product.device") == "jfltevzw" || getprop("ro.build.product") == "jfltevzw") then
+			package_extract_dir("aroma/scripts/loki", "/tmp");
+			package_extract_file("aroma/kernel/stock/boot.img", "/tmp/boot.img");
+
+			set_perm(0, 0, 0777, "/tmp/loki_bootloaders");
+			set_perm(0, 0, 0777, "/tmp/flash_kernel.sh");
+			set_perm(0, 0, 0777, "/tmp/loki_patch");
+			set_perm(0, 0, 0777, "/tmp/loki_flash");
+			run_program("/tmp/flash_kernel.sh");
+		else 
+			package_extract_file("aroma/kernel/stock/boot.img", "/dev/block/platform/msm_sdcc.1/by-name/boot");
+		endif;
+
+		package_extract_dir("aroma/kernel/stock/system", "/system");
+		set_perm_recursive(0, 0, 0755, 0644, "/system/lib/modules");
+    endif;	
+
+    if file_getprop("/tmp/aroma-data/install.prop","kernel") == "googymax" then
+
+    	# Hardswap enable or disable
+		ui_print("<b><#009688>Setting Swap...</#></b>");	
+			package_extract_file("aroma/scripts/hardswap.sh", "/tmp/hardswap.sh");
+			set_perm(0, 0, 0777, "/tmp/hardswap.sh");
+			run_program("/tmp/hardswap.sh", "/cache", file_getprop("/tmp/aroma-data/hardswap.prop", "swap"));
+
+		ui_print("<b><#009688>Installing GoogyMax Kernel...</#></b>");	
+		if (getprop("ro.product.device") == "jflteatt" || getprop("ro.build.product") == "jflteatt" || 
+			getprop("ro.product.device") == "jfltevzw" || getprop("ro.build.product") == "jfltevzw") then
+			package_extract_dir("aroma/scripts/loki", "/tmp");
+			package_extract_file("aroma/kernel/googymax/boot.img", "/tmp/boot.img");
+
+			set_perm(0, 0, 0777, "/tmp/loki_bootloaders");
+			set_perm(0, 0, 0777, "/tmp/flash_kernel.sh");
+			set_perm(0, 0, 0777, "/tmp/loki_patch");
+			set_perm(0, 0, 0777, "/tmp/loki_flash");
+			run_program("/tmp/flash_kernel.sh");
+		else 
+			package_extract_file("aroma/kernel/googymax/boot.img", "/dev/block/platform/msm_sdcc.1/by-name/boot");
+		endif;
+
+		package_extract_dir("aroma/kernel/googymax/system", "/system");
+		set_perm_recursive(0, 0, 0755, 0644, "/system/lib/modules");
 	endif;
 
-	package_extract_dir("aroma/kernel/system", "/system");
-	set_perm_recursive(0, 0, 0755, 0644, "/system/lib/modules");
+#	package_extract_file("aroma/scripts/kernel/kernel_general.sh", "/tmp/kernel_general.sh");
+#	set_perm(0, 0, 0777, "/tmp/kernel_general.sh");
+#
+# CPU Govenor
+#	run_program("/tmp/kernel_general.sh","scaling_governor", file_getprop("/tmp/aroma-data/kernel.prop", "govenor"));
+#   
+# Arch Power
+#	package_extract_file("aroma/scripts/kernel/kernel_arch.sh", "/tmp/kernel_arch.sh");
+#	set_perm(0, 0, 0777, "/tmp/kernel_arch.sh");
+#	run_program("/tmp/kernel_arch.sh",file_getprop("/tmp/aroma-data/kernel.prop", "arch_power_enable"));
+
+# Sched MC
+#	run_program("/tmp/kernel_general.sh","sched_mc_power_savings", file_getprop("/tmp/aroma-data/kernel.prop", "sched_mc"));
+
+# CPU undervolt
+#	run_program("/tmp/kernel_general.sh","CPUVOLT1", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT2", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT3", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT4", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT5", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT6", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT7", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT8", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT9", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT10", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT11", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT12", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT13", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT14", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+#	run_program("/tmp/kernel_general.sh","CPUVOLT15", file_getprop("/tmp/aroma-data/kernel.prop", "cpu_undervolt"));
+
+# ZRAM
+#	package_extract_file("aroma/scripts/kernel/kernel_zram.sh", "/tmp/kernel_zram.sh");
+#	set_perm(0, 0, 0777, "/tmp/kernel_zram.sh");
+#	run_program("/tmp/kernel_zram.sh", file_getprop("/tmp/aroma-data/kernel.prop", "zram"));
+
+# Internal Scheduler
+#	run_program("/tmp/kernel_general.sh","int_scheduler", file_getprop("/tmp/aroma-data/kernel.prop", "int_shed"));
+
+# Internal Readahead
+#	run_program("/tmp/kernel_general.sh","int_read_ahead_kb", file_getprop("/tmp/aroma-data/kernel.prop", "int_readahead"));
+
+# External Scheduler
+#	run_program("/tmp/kernel_general.sh","ext_scheduler", file_getprop("/tmp/aroma-data/kernel.prop", "ext_shed"));
+
+# External Readahead
+#	run_program("/tmp/kernel_general.sh","ext_read_ahead_kb", file_getprop("/tmp/aroma-data/kernel.prop", "ext_readahead"));
+
+# Charge Control
+#	package_extract_file("aroma/scripts/kernel/kernel_charging.sh", "/tmp/kernel_charging.sh");
+#	set_perm(0, 0, 0777, "/tmp/kernel_charging.sh");
+#	run_program("/tmp/kernel_charging.sh", file_getprop("/tmp/aroma-data/kernel.prop", "charging"));
 	
 ui_print("<b><#009688>Finishing Installation...</#></b>");
 
@@ -657,6 +790,10 @@ ui_print("<b><#009688>Finishing Installation...</#></b>");
 		package_extract_file("aroma/scripts/default_network.sh", "/tmp/default_network.sh");
 		set_perm(0, 0, 0777, "/tmp/default_network.sh");
 		run_program("/tmp/default_network.sh");
+	endif;
+	
+	if (getprop("ro.product.device") == "jfltevzw" || getprop("ro.build.product") == "jfltevzw") then  
+        package_extract_dir("aroma/scripts/CSCvzw", "/system");
 	endif;
 
     if (getprop("ro.product.device") == "jfltespr" || getprop("ro.build.product") == "jfltespr") then    
